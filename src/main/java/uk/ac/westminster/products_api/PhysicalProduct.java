@@ -1,12 +1,11 @@
 package uk.ac.westminster.products_api;
 
-// A PhysicalProduct IS-A Product because it has an id, a name and a price like every product, plus shipping details.
-// A ShoppingCart is NOT a Product: it contains products (HAS-A), so it would use a List<Product> field.
-
-public class PhysicalProduct extends Product {
+public class PhysicalProduct extends Product
+        implements Discountable {
 
     private double weightKg;
     private String dimensions;
+    private double discountedPrice;
 
     public PhysicalProduct() {
     }
@@ -16,13 +15,27 @@ public class PhysicalProduct extends Product {
         super(id, name, price);
         this.weightKg = weightKg;
         this.dimensions = dimensions;
+        this.discountedPrice = price;
     }
 
-    public double getWeightKg() {
-        return weightKg;
+    @Override
+    public String getSummary() {
+        return "Physical: " + getName()
+                + " | Weight: " + weightKg + " kg";
     }
 
-    public String getDimensions() {
-        return dimensions;
+    @Override
+    public void applyDiscount(double rate) {
+        // Shipping is never discounted, so the rate is capped at 20%.
+        double capped = Math.min(rate, 0.20);
+        this.discountedPrice = getPrice() * (1 - capped);
     }
+
+    @Override
+    public double getDiscountedPrice() {
+        return discountedPrice;
+    }
+
+    public double getWeightKg()    { return weightKg; }
+    public String getDimensions()  { return dimensions; }
 }
